@@ -32,3 +32,12 @@ def drop_postgres_db(dbname):
     Drops a postgres database.
     """
     sudo('dropdb %s' % dbname, user='postgres')
+
+def setup_postgres(project, password):
+    """
+    By default, postgres username will be the project name.
+    postgres dbname == postgres username
+    """
+    create_postgres_user(project, password)
+    create_postgres_db(project, project)
+

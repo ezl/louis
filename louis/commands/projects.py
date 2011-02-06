@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+from fabric.operations import prompt
 from fabric.api import run, put, sudo, env, cd, local, prompt, settings
 from fabric.contrib import files
 from fabric.colors import green, red
@@ -146,10 +147,22 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
         louis.commands.apache_reload()
 
 
-def setup_project(project_name, git_url, apache_server_name, apache_server_alias, django_settings='production-settings', project_username=None, branch='master', requirements_path=None):
+def setup_project(project_name, git_url=None, apache_server_name=None, \
+                  apache_server_alias=None, django_settings='production-settings', \
+                  project_username=None, branch='master', requirements_path=None):
     """
     Creates a user for the project, checks out the code and does basic apache config.
     """
+    if git_url is None:
+        git_url = prompt("Where is your git repo?")
+    if apache_server_name is None:
+        apache_server_name = prompt("Apache server name?")
+    if apache_server_alias is None:
+        apache_server_alias = prompt("Apache server alias?")
+
+    confirm_django_settings = prompt("Which Django settings file do you want to use? (blank for [%s])" % django_settings)
+    django_settings = confirm_django_settings or django_settings
+
     if not project_username:
         project_username =  '%s-%s' % (project_name, branch)
     setup_project_user(project_username)
@@ -175,7 +188,8 @@ def delete_project_code(project_name, project_username):
     sudo('rm -rf /home/%s/%s' % (project_username, project_name))
 
 
-def update_project(project_name, project_username=None, branch='master', wsgi_file_path=None, settings_module='production-settings'):
+def update_project(project_name, project_username=None, branch='master', \
+                   wsgi_file_path=None, settings_module='production-settings'):
     """
     Pull the latest source to a project deployed at target_directory. The
     target_directory is relative to project user's home dir. target_directory
