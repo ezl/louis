@@ -162,10 +162,9 @@ def setup_project(project_name, git_url=None, apache_server_name=None, \
     if apache_server_name is None:
         apache_server_name = prompt("Apache server name?")
     if apache_server_alias is None:
-        apache_server_alias = prompt("Apache server alias?")
+        apache_server_alias = prompt("Apache server alias?", default=apache_server_name)
 
-    confirm_django_settings = prompt("Which Django settings file do you want to use? (blank for [%s])" % django_settings)
-    django_settings = confirm_django_settings or django_settings
+    django_settings = prompt("Which Django settings file do you want to use?", default=django_settings)
 
     if not project_username:
         project_username =  '%s-%s' % (project_name, branch)
@@ -205,6 +204,7 @@ def update_project(project_name, project_username=None, branch='master', \
         project_username = '%s-%s' % (project_name, branch)
     if not wsgi_file_path:
         wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
+    django_settings = prompt("Which Django settings file do you want to use?", default=django_settings)
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
             run('git checkout %s' % branch)
