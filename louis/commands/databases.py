@@ -33,11 +33,11 @@ def drop_postgres_db(dbname):
     """
     sudo('dropdb %s' % dbname, user='postgres')
 
-def setup_postgres(project, password):
+def setup_postgres(project_name, password):
     """
     By default, postgres username will be the project name.
     postgres dbname == postgres username
     """
-    create_postgres_user(project, password)
-    create_postgres_db(project, project)
+    create_postgres_user(username=project_name, password=password)
+    create_postgres_db(owner=project_name, dbname=project_name)
 
