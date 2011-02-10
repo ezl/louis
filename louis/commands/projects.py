@@ -94,7 +94,7 @@ def setup_project_code(project_name, project_username, git_url, branch='master')
                 run('git checkout %s' % branch)
 
 
-def setup_project_apache(project_name, project_username, server_name, server_alias, django_settings, media_directory=None, branch='master'):
+def setup_project_apache(project_name, project_username, server_name, server_alias, django_settings, server_admin="null@example.com", media_directory=None, branch='master'):
     """
     Configure apache-related settings for the project.
     
@@ -110,6 +110,10 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
     defaults to project_username/media ie you'd end up with
     /home/project/project/media/
     """
+    try:
+        server_admin = conf.APACHE_SERVER_ADMIN
+    except ImportError:
+        pass
     if not media_directory:
         media_directory = '%s/media/' % project_name
     with cd('/home/%s' % project_username):
@@ -123,6 +127,7 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
         'server_alias': server_alias,
         'django_settings': django_settings,
         'branch': branch,
+        'server_admin': server_admin,
     }
     # apache config
     for config_path in local('find $PWD -name "*.apache2"').split('\n'):
@@ -151,20 +156,40 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
         louis.commands.apache_reload()
 
 
-def setup_project(project_name, git_url=None, apache_server_name=None, \
+def setup_project(project_name=None, git_url=None, apache_server_name=None, \
                   apache_server_alias=None, django_settings='production-settings', \
                   project_username=None, branch='master', requirements_path=None):
     """
     Creates a user for the project, checks out the code and does basic apache config.
     """
+    if project_name is None:
+        try:
+            project_name = conf.PROJECT_NAME
+        except ImportError:
+            project_name = prompt("State thine project name (directory name):")
     if git_url is None:
-        git_url = prompt("Where is your git repo?")
+        try:
+            git_url = conf.GIT_URL
+        except ImportError:
+            git_url = prompt("Where dost thou git repository lie?")
+    try:
+        branch = conf.GIT_BRANCH
+    except ImportError:
+        pass
+    finally:
+        print("Using branch %s" % branch)
     if apache_server_name is None:
-        apache_server_name = prompt("Apache server name?")
+        try:
+            apache_server_name = conf.APACHE_SERVER_NAME
+        except ImportError:
+            apache_server_name = prompt("State thine Apache server name?")
     if apache_server_alias is None:
-        apache_server_alias = prompt("Apache server alias?", default=apache_server_name)
-
-    django_settings = prompt("Which Django settings file do you want to use?", default=django_settings)
+        try:
+            apache_server_alias = conf.APACHE_SERVER_ALIAS
+        except:
+            apache_server_alias = prompt("And thine Apache server alias?", default=apache_server_name)
+    django_settings = conf.DJANGO_SETTINGS_MODULE or django_settings
+    print ("Using %s for django settings module.")
 
     if not project_username:
         project_username =  '%s-%s' % (project_name, branch)
@@ -178,6 +203,10 @@ def setup_project(project_name, git_url=None, apache_server_name=None, \
     if not requirements_path:
         requirements_path = '%s/deploy/requirements.txt' % project_name
     install_project_requirements(project_username, requirements_path)
+    with settings(user=project_username):
+        with cd('/home/%s/%s' % (project_username, project_name)):
+            run('/home/%s/env/bin/python manage.py syncdb --settings=%s' % (project_username, django_settings))
+            run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, django_settings))
     setup_project_apache(project_name, project_username, apache_server_name, apache_server_alias, django_settings, branch=branch)
     print(green("""Project setup complete. You may need to patch the virtualenv
     to install things like mx. You may do so with the patch_virtualenv command."""))
@@ -191,8 +220,8 @@ def delete_project_code(project_name, project_username):
     sudo('rm -rf /home/%s/%s' % (project_username, project_name))
 
 
-def update_project(project_name, project_username=None, branch='master', \
-                   wsgi_file_path=None, settings_module='production-settings'):
+def update_project(project_name=None, project_username=None, branch='master', \
+                   wsgi_file_path=None, django_settings='production-settings'):
     """
     Pull the latest source to a project deployed at target_directory. The
     target_directory is relative to project user's home dir. target_directory
@@ -200,15 +229,27 @@ def update_project(project_name, project_username=None, branch='master', \
     The wsgi path is relative to the target directory and defaults to
     deploy/project_username.wsgi.
     """
+    if project_name is None:
+        try:
+            project_name = conf.PROJECT_NAME
+        except ImportError:
+            project_name = prompt("State thine project name (directory name):")
+    try:
+        branch = conf.GIT_BRANCH
+    except ImportError:
+        pass
+    finally:
+        print("Using branch %s" % branch)
     if not project_username:
         project_username = '%s-%s' % (project_name, branch)
     if not wsgi_file_path:
         wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
-    django_settings = prompt("Which Django settings file do you want to use?", default=django_settings)
+    django_settings = conf.DJANGO_SETTINGS_MODULE or django_settings
+    print ("Using %s for django settings module.")
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
             run('git checkout %s' % branch)
             run('git pull')
             run('git submodule update')
-            run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, settings_module))
+            run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, django_settings))
             run('touch %s' % wsgi_file_path)

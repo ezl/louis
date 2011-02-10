@@ -5,7 +5,7 @@ from fabric.contrib import files
 from louis import conf
 
 
-def create_postgres_user(username, password):
+def create_postgres_user(username=conf.POSTGRES_USERNAME, password=conf.POSTGRES_PASSWORD):
     """
     Creates a plain postgres user: nosuperuser, nocreaterole, createdb.
     """
@@ -20,7 +20,7 @@ def delete_postgres_user(username):
     sudo('dropuser %s' % username, user='postgres')
 
 
-def create_postgres_db(owner, dbname):
+def create_postgres_db(owner=conf.POSTGRES_USERNAME, dbname=conf.POSTGRES_USERNAME):
     """
     Creates a postgres database given its owner (a postgres user) and the name
     of the database.
@@ -33,11 +33,14 @@ def drop_postgres_db(dbname):
     """
     sudo('dropdb %s' % dbname, user='postgres')
 
-def setup_postgres(project_name, password):
+def setup_postgres(project_name=None, password=None, dbname=None):
     """
     By default, postgres username will be the project name.
     postgres dbname == postgres username
     """
-    create_postgres_user(username=project_name, password=password)
-    create_postgres_db(owner=project_name, dbname=project_name)
+    # F it.  I'm bored.
+    create_postgres_user()
+    create_postgres_db()
+    # create_postgres_user(username=project_name, password=password)
+    # create_postgres_db(owner=project_name, dbname=project_name)
 
