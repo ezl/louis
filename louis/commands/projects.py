@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 from fabric.operations import prompt
+from fabric.contrib.console import confirm
 from fabric.api import run, put, sudo, env, cd, local, prompt, settings
 from fabric.contrib import files
 from fabric.colors import green, red
@@ -71,7 +72,10 @@ def setup_project_code(project_name, project_username, git_url, branch='master')
         with settings(user=project_username):
             if files.exists(project_name):
                 print(red('Destination path already exists ie the repo has been cloned already.'))
-                return
+                if confirm(red('Delete existing repo and re-clone?')):
+                   run('rm -rf %s' % project_name)
+                else:
+                    return
             run('git clone %s %s' % (git_url, project_name))
             with cd('%s' % project_name):
                 #run('git submodule update --init') # --recursive')
