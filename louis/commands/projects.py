@@ -59,6 +59,7 @@ def install_project_requirements(project_username, requirements_path, env_path='
     with settings(user=project_username):
         with cd('/home/%s' % project_username):
             run('%s/bin/pip install -r %s' % (env_path, requirements_path))
+            run('%s/bin/easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base' % env_path)
 
 
 def setup_project_code(project_name, project_username, git_url, branch='master'):
