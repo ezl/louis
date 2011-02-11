@@ -24,7 +24,7 @@ def create_group(groupname):
             sudo('groupadd %s' % groupname)
 
 
-def create_user(username, ssh_key_path, shell='bash', admin=False):
+def create_user(username, ssh_key_path, shell='bash', admin=False, password=None):
     """
     Creates a user. The ssh_key_path argument is required and should be an
     absolute path to a local key file. The file will be concatenated to
@@ -39,7 +39,7 @@ def create_user(username, ssh_key_path, shell='bash', admin=False):
         create_group('admin')
         sudo('useradd -G admin -m -s `which %s` %s' % (shell, username))
     else:
-        sudo('useradd -m -s' % (shell, username))
+        sudo('useradd -m -s `which %s` %s' % (shell, username))
     add_ssh_keys(target_username=username, ssh_key_path=ssh_key_path)
 
 

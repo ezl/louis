@@ -143,8 +143,11 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
     for wsgi_path in local('find $PWD -name "*.wsgi"').split('\n'):
         d, sep, wsgi_filename = wsgi_path.rpartition('/')
         wsgi_filename, dot, ext = wsgi_filename.rpartition('.')
-        wsgi_filename = '%s-%s.%s' % (wsgi_filename, branch, ext)
+        # apache2 file has this filename set already.
+        # wsgi_filename = '%s-%s.%s' % (wsgi_filename, branch, ext)
+        wsgi_filename = '%s.%s' % (project_username, ext)
         dest_path = '/home/%s/%s' % (project_username, wsgi_filename)
+
         if not files.exists(dest_path, use_sudo=True):
             files.upload_template(wsgi_path, dest_path, use_sudo=True, context=context)
             sudo('chown %s:%s %s' % (project_username, 'www-data', dest_path))
@@ -206,7 +209,7 @@ def setup_project(project_name=None, git_url=None, apache_server_name=None, \
     install_project_requirements(project_username, requirements_path)
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
-            run('/home/%s/env/bin/python manage.py syncdb --settings=%s' % (project_username, django_settings))
+            run('/home/%s/env/bin/python manage.py syncdb --settings=%s --noinput' % (project_username, django_settings))
             run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, django_settings))
     setup_project_apache(project_name, project_username, apache_server_name, apache_server_alias, django_settings, branch=branch)
     print(green("""Project setup complete. You may need to patch the virtualenv

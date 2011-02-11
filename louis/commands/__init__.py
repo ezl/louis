@@ -6,6 +6,15 @@ from louis.commands.databases import *
 from louis import conf
 
 
+def giddyup():
+    """All.  louisconf has to be properly set up."""
+    # with settings(user="root"):
+    #    init_server()
+    # This doesn't work, but how do i do this?
+    setup_postgres()
+    setup_project()
+    update_project()
+
 def init_server(apache=True, postgres=True):
     """
     Runs basic configuration of a virgin server.

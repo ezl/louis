@@ -20,7 +20,7 @@ def delete_postgres_user(username):
     sudo('dropuser %s' % username, user='postgres')
 
 
-def create_postgres_db(owner=conf.POSTGRES_USERNAME, dbname=conf.POSTGRES_USERNAME):
+def create_postgres_db(owner=conf.POSTGRES_USERNAME, dbname=conf.POSTGRES_DBNAME):
     """
     Creates a postgres database given its owner (a postgres user) and the name
     of the database.
