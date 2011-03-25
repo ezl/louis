@@ -10,7 +10,23 @@ import louis.commands
 from louis.commands.users import add_ssh_keys
 
 
-def setup_project_user(project_username):
+branch = conf.GIT_BRANCH
+project_name = conf.PROJECT_NAME
+project_username =  '%s-%s' % (project_name, branch)
+requirements_path = '/home/%s/%s/deploy/requirements.txt' % (project_username, project_name)
+# requirements_path = '%s/deploy/requirements.txt' % project_name
+git_url = conf.GIT_URL
+media_directory = '/home/%s/%s/media/' % (project_username, project_name)
+# media_directory = '%s/media/' % project_name
+apache_server_name = conf.APACHE_SERVER_NAME
+apache_server_alias = conf.APACHE_SERVER_ALIAS
+server_admin = conf.APACHE_SERVER_ADMIN
+wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
+django_settings = conf.DJANGO_SETTINGS_MODULE # or 'production-settings'
+env_path = '.virtualenvs/%s' % project_name
+
+
+def setup_project_user(project_username=project_username):
     """
     Create a crippled user to hold project-specific files.
     """
@@ -30,7 +46,9 @@ def setup_project_user(project_username):
         run('mkdir log')
 
 
-def setup_project_virtualenv(project_username, target_directory='env', site_packages=False):
+def setup_project_virtualenv(project_username=project_username,
+                             env_path=env_path,
+                             site_packages=False):
     """
     Create a clean virtualenv for a project in the target directory. The target
     directory is relative to the project user's home dir and defaults to env ie
@@ -39,14 +57,16 @@ def setup_project_virtualenv(project_username, target_directory='env', site_pack
     with settings(user=project_username):
         with cd('/home/%s' % project_username):
             if site_packages:
-                run('virtualenv %s' % target_directory)
+                run('virtualenv %s' % env_path)
             else:
-                 run('virtualenv --no-site-packages %s' % target_directory)
+                 run('virtualenv --no-site-packages %s' % env_path)
             run('env/bin/easy_install -U setuptools')
             run('env/bin/easy_install pip')
 
 
-def install_project_requirements(project_username, requirements_path, env_path='env'):
+def install_project_requirements(project_username=project_username,
+                                 requirements_path=requirements_path,
+                                 env_path=env_path):
     """
     Installs a requirements file via pip.
 
@@ -62,7 +82,10 @@ def install_project_requirements(project_username, requirements_path, env_path='
             run('%s/bin/easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base' % env_path)
 
 
-def setup_project_code(project_name, project_username, git_url, branch='master'):
+def setup_project_code(project_name=project_name,
+                       project_username=project_username,
+                       git_url=git_url,
+                       branch=branch):
     """
     Check out the project's code into its home directory. Target directory will
     be relative to project_username's home directory. target directory defaults
@@ -95,7 +118,14 @@ def setup_project_code(project_name, project_username, git_url, branch='master')
                 run('git checkout %s' % branch)
 
 
-def setup_project_apache(project_name, project_username, server_name, server_alias, django_settings, server_admin="null@example.com", media_directory=None, branch='master'):
+def setup_project_apache(project_name=project_name,
+                         project_username=project_username,
+                         apache_server_name=apache_server_name,
+                         apache_server_alias=apache_server_alias,
+                         django_settings=django_settings,
+                         server_admin=server_admin,
+                         media_directory=media_directory,
+                         branch=branch):
     """
     Configure apache-related settings for the project.
     
@@ -111,12 +141,6 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
     defaults to project_username/media ie you'd end up with
     /home/project/project/media/
     """
-    try:
-        server_admin = conf.APACHE_SERVER_ADMIN
-    except ImportError:
-        pass
-    if not media_directory:
-        media_directory = '%s/media/' % project_name
     with cd('/home/%s' % project_username):
         # permissions for media/
         sudo('chgrp www-data -R %s' % media_directory)
@@ -124,8 +148,8 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
     context = {
         'project_name': project_name,
         'project_username': project_username,
-        'server_name': server_name,
-        'server_alias': server_alias,
+        'server_name': apache_server_name,
+        'server_alias': apache_server_alias,
         'django_settings': django_settings,
         'branch': branch,
         'server_admin': server_admin,
@@ -162,43 +186,17 @@ def setup_project_apache(project_name, project_username, server_name, server_ali
         louis.commands.apache_reload()
 
 
-def setup_project(project_name=None, git_url=None, apache_server_name=None, \
-                  apache_server_alias=None, django_settings='production-settings', \
-                  project_username=None, branch='master', requirements_path=None):
+def setup_project(project_name=project_name,
+                  project_username=project_username,
+                  git_url=git_url,
+                  apache_server_name=apache_server_name,
+                  apache_server_alias=apache_server_alias,
+                  django_settings=django_settings,
+                  branch=branch,
+                  requirements_path=requirements_path):
     """
     Creates a user for the project, checks out the code and does basic apache config.
     """
-    if project_name is None:
-        try:
-            project_name = conf.PROJECT_NAME
-        except ImportError:
-            project_name = prompt("State thine project name (directory name):")
-    if git_url is None:
-        try:
-            git_url = conf.GIT_URL
-        except ImportError:
-            git_url = prompt("Where dost thou git repository lie?")
-    try:
-        branch = conf.GIT_BRANCH
-    except ImportError:
-        pass
-    finally:
-        print("Using branch %s" % branch)
-    if apache_server_name is None:
-        try:
-            apache_server_name = conf.APACHE_SERVER_NAME
-        except ImportError:
-            apache_server_name = prompt("State thine Apache server name?")
-    if apache_server_alias is None:
-        try:
-            apache_server_alias = conf.APACHE_SERVER_ALIAS
-        except:
-            apache_server_alias = prompt("And thine Apache server alias?", default=apache_server_name)
-    django_settings = conf.DJANGO_SETTINGS_MODULE or django_settings
-    print ("Using %s for django settings module.")
-
-    if not project_username:
-        project_username =  '%s-%s' % (project_name, branch)
     setup_project_user(project_username)
     print(green("Here is the project user's public key:"))
     run('cat /home/%s/.ssh/id_rsa.pub' % project_username)
@@ -206,19 +204,18 @@ def setup_project(project_name=None, git_url=None, apache_server_name=None, \
     prompt(green("Press enter to continue."))
     setup_project_code(project_name, project_username, git_url, branch)
     setup_project_virtualenv(project_username)
-    if not requirements_path:
-        requirements_path = '%s/deploy/requirements.txt' % project_name
     install_project_requirements(project_username, requirements_path)
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
-            run('/home/%s/env/bin/python manage.py syncdb --settings=%s --noinput' % (project_username, django_settings))
-            run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, django_settings))
+            run('/home/%s/%s/bin/python manage.py syncdb --settings=%s --noinput' % (project_username, env_path, django_settings))
+            run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
     setup_project_apache(project_name, project_username, apache_server_name, apache_server_alias, django_settings, branch=branch)
     print(green("""Project setup complete. You may need to patch the virtualenv
     to install things like mx. You may do so with the patch_virtualenv command."""))
 
 
-def delete_project_code(project_name, project_username):
+def delete_project_code(project_name=project_name,
+                        project_username=project_username):
     """
     Deletes /home/project_username/target_directory/ target_directory defaults
     to project_username if not given ie /home/project/project/
@@ -226,8 +223,12 @@ def delete_project_code(project_name, project_username):
     sudo('rm -rf /home/%s/%s' % (project_username, project_name))
 
 
-def update_project(project_name=None, project_username=None, branch='master', \
-                   wsgi_file_path=None, django_settings='production-settings'):
+def update_project(project_name=project_name,
+                   project_username=project_username,
+                   branch=branch,
+                   wsgi_file_path=wsgi_file_path,
+                   django_settings=django_settings,
+                   update_requirements=True):
     """
     Pull the latest source to a project deployed at target_directory. The
     target_directory is relative to project user's home dir. target_directory
@@ -235,27 +236,13 @@ def update_project(project_name=None, project_username=None, branch='master', \
     The wsgi path is relative to the target directory and defaults to
     deploy/project_username.wsgi.
     """
-    if project_name is None:
-        try:
-            project_name = conf.PROJECT_NAME
-        except ImportError:
-            project_name = prompt("State thine project name (directory name):")
-    try:
-        branch = conf.GIT_BRANCH
-    except ImportError:
-        pass
-    finally:
-        print("Using branch %s" % branch)
-    if not project_username:
-        project_username = '%s-%s' % (project_name, branch)
-    if not wsgi_file_path:
-        wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
-    django_settings = conf.DJANGO_SETTINGS_MODULE or django_settings
     print ("Using %s for django settings module.")
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
             run('git checkout %s' % branch)
             run('git pull')
             run('git submodule update')
-            run('/home/%s/env/bin/python manage.py migrate --settings=%s' % (project_username, django_settings))
+            run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
+            if update_requirements is True:
+                run('/home/%s/%s/bin/pip install -r %s' % (project_username, env_path, requirements_path))
             run('touch %s' % wsgi_file_path)
