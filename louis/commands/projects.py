@@ -60,8 +60,8 @@ def setup_project_virtualenv(project_username=project_username,
                 run('virtualenv %s' % env_path)
             else:
                  run('virtualenv --no-site-packages %s' % env_path)
-            run('env/bin/easy_install -U setuptools')
-            run('env/bin/easy_install pip')
+            run('%s/bin/easy_install -U setuptools' % env_path)
+            run('%s/bin/easy_install pip' % env_path)
 
 
 def install_project_requirements(project_username=project_username,
@@ -125,6 +125,7 @@ def setup_project_apache(project_name=project_name,
                          django_settings=django_settings,
                          server_admin=server_admin,
                          media_directory=media_directory,
+                         env_path=env_path,
                          branch=branch):
     """
     Configure apache-related settings for the project.
@@ -151,6 +152,7 @@ def setup_project_apache(project_name=project_name,
         'server_name': apache_server_name,
         'server_alias': apache_server_alias,
         'django_settings': django_settings,
+        'env_path': env_path,
         'branch': branch,
         'server_admin': server_admin,
     }
