@@ -225,6 +225,13 @@ def delete_project_code(project_name=project_name,
     sudo('rm -rf /home/%s/%s' % (project_username, project_name))
 
 
+def get_project_head(project_name=project_name,
+                 project_username=project_username):
+    """See what remote project's last commit is."""
+    with settings(user=project_username):
+        with cd('/home/%s/%s' % (project_username, project_name)):
+            run('git log -n1')
+
 def update_project(project_name=project_name,
                    project_username=project_username,
                    branch=branch,
