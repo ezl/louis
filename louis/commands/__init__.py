@@ -5,6 +5,8 @@ from louis.commands.projects import *
 from louis.commands.databases import *
 from louis import conf
 
+def command(command="ls"):
+    sudo("%s" % command)
 
 def giddyup():
     """All.  louisconf has to be properly set up."""
