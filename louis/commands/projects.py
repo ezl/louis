@@ -15,6 +15,7 @@ project_name = conf.PROJECT_NAME
 project_username =  '%s-%s' % (project_name, branch)
 requirements_path = '/home/%s/%s/deploy/requirements.txt' % (project_username, project_name)
 # requirements_path = '%s/deploy/requirements.txt' % project_name
+extra_project_requirements = getattr(conf, "install_extra_project_requirements")
 git_url = conf.GIT_URL
 media_directory = '/home/%s/%s/media/' % (project_username, project_name)
 # media_directory = '%s/media/' % project_name
@@ -80,7 +81,8 @@ def install_project_requirements(project_username=project_username,
         with cd('/home/%s' % project_username):
             run('%s/bin/pip install -r %s' % (env_path, requirements_path))
             run('%s/bin/easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base' % env_path)
-
+    if extra_project_requirements:
+        extra_project_requirements()
 
 def setup_project_code(project_name=project_name,
                        project_username=project_username,
@@ -253,5 +255,5 @@ def update_project(project_name=project_name,
             run('git submodule update')
             run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
             if update_requirements is True:
-                run('/home/%s/%s/bin/pip install -r %s' % (project_username, env_path, requirements_path))
+                install_project_requirements(project_username, requirements_path,  env_path)
             run('touch %s' % wsgi_file_path)
