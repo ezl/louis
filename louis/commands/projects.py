@@ -77,12 +77,12 @@ def install_project_requirements(project_username=project_username,
     The env path should also be relative to the project user's home directory and
     defaults to env.
     """
+    if extra_project_requirements:
+        extra_project_requirements()
     with settings(user=project_username):
         with cd('/home/%s' % project_username):
             run('%s/bin/pip install -r %s' % (env_path, requirements_path))
             run('%s/bin/easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base' % env_path)
-    if extra_project_requirements:
-        extra_project_requirements()
 
 def setup_project_code(project_name=project_name,
                        project_username=project_username,
