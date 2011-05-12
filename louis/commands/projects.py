@@ -257,3 +257,8 @@ def update_project(project_name=project_name,
             if update_requirements is True:
                 install_project_requirements(project_username, requirements_path,  env_path)
             run('touch %s' % wsgi_file_path)
+            if hasattr(conf, "CRONTAB"):
+                print "Setting up cron jobs"
+                with settings(user=None):
+                    for cron_file in conf.CRONTAB:
+                        sudo("cp '/home/%s/%s/%s' /etc/cron.d/" % (project_username, project_name, cron_file))
