@@ -262,4 +262,4 @@ def update_project(project_name=project_name,
                 with settings(user=None):
                     for cron_file in conf.CRONTAB:
                         sudo("cp '/home/%s/%s/%s' /etc/cron.d/" % (project_username, project_name, cron_file))
-                        sudo("crontab /etc/cron.d/%s" % cron_file)
+                        sudo("crontab /etc/cron.d/%s" % cron_file.rsplit("/", 1)[-1])
