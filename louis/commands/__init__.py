@@ -21,6 +21,8 @@ def init_server(apache=True, postgres=True):
     """
     Runs basic configuration of a virgin server.
     """
+    if hasattr(conf, "timezone"):
+        set_timezone(conf.timezone)
     setup_hosts()
     update()
     install_debconf_seeds()

@@ -87,4 +87,6 @@ def patch_virtualenv(user, package_path, virtualenv_path='env'):
         target = '/home/%s/%s/lib/python2.6/site-packages/' % (user, virtualenv_path)
         run('ln -s %s %s' % (package_path, target))
 
-
+def set_timezone(timezone):
+    sudo('echo "%s" > /etc/timezone' % timezone)
+    sudo("dpkg-reconfigure --frontend noninteractive tzdata")
