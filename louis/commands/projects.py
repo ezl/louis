@@ -260,4 +260,12 @@ def update_project(project_name=project_name,
             if hasattr(conf, "CRONTAB"):
                 print "Setting up crontab"
                 run("crontab /home/%s/%s/%s" % (project_username, project_name, conf.CRONTAB))
+    if hasattr(conf, "LOGROTATE"):
+        print "Setting up logrotate"
+        path = conf.LOGROTATE
+        context = {
+            "project_name": project_name,
+            "project_username": project_username,
+        }
+        files.upload_template(path, "/etc/logrotate.d/%s" % project_name, context=context, use_sudo=True)
 
