@@ -250,6 +250,10 @@ def update_project(project_name=project_name,
     deploy/project_username.wsgi.
     """
     print ("Using %s for django settings module.")
+    template_context = {
+        "project_username": project_username,
+        "project_name": project_name,
+    }
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
             run('git checkout %s' % branch)
@@ -263,13 +267,11 @@ def update_project(project_name=project_name,
             run('touch %s' % wsgi_file_path)
             if hasattr(conf, "CRONTAB"):
                 print "Setting up crontab"
-                run("crontab /home/%s/%s/%s" % (project_username, project_name, conf.CRONTAB))
+                # FIXME It is kind hacky the creation of a temporary file
+                # here, but we need to make it consistent with LOGROTATE.
+                temp_dest = "/tmp/%s.crontab" % project_name
+                files.upload_template(conf.CRONTAB, temp_dest, context=template_context)
+                run("crontab %s && rm %s" % (temp_dest, temp_dest))
     if hasattr(conf, "LOGROTATE"):
         print "Setting up logrotate"
-        path = conf.LOGROTATE
-        context = {
-            "project_name": project_name,
-            "project_username": project_username,
-        }
-        files.upload_template(path, "/etc/logrotate.d/%s" % project_name, context=context, use_sudo=True)
-
+        files.upload_template(conf.LOGROTATE, "/etc/logrotate.d/%s" % project_name, context=template_context, use_sudo=True)
