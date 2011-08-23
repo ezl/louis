@@ -30,9 +30,9 @@ def install_basic_packages():
     """
     Installs basic packages as specified in louisconf.BASIC_PACKAGES
     """
-    for pkg in conf.BASIC_PACKAGES:
-        print(green('Installing %s' % pkg))
-        sudo('apt-get -y install ' + pkg, shell=False)
+    packages = " ".join(conf.BASIC_PACKAGES)
+    print(green('Installing %s' % packages))
+    sudo('apt-get -y install ' + packages, shell=False)
 
 
 def config_apticron():
