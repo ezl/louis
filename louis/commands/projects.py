@@ -251,6 +251,7 @@ def update_project(project_name=project_name,
     """
     print ("Using %s for django settings module.")
     template_context = {
+        "env_path": env_path,
         "project_username": project_username,
         "project_name": project_name,
     }
