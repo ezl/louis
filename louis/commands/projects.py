@@ -273,7 +273,7 @@ def update_project(project_name=project_name,
                 temp_dest = "/tmp/%s.crontab" % project_name
                 # Fabric tries to keep a backup of the same file sometimes
                 with settings(warn_only=True):
-                    files.upload_template(conf.CRONTAB, temp_dest, context=template_context, backup=False)
+                    files.upload_template(conf.CRONTAB, temp_dest, context=template_context)
                 run("crontab %s && rm %s" % (temp_dest, temp_dest))
     if hasattr(conf, "LOGROTATE"):
         print "Setting up logrotate"
