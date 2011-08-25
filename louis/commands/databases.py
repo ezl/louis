@@ -22,11 +22,11 @@ def delete_postgres_user(username):
 
 def create_postgres_db(owner=conf.POSTGRES_USERNAME, dbname=conf.POSTGRES_DBNAME):
     """
-    Creates a postgres database given its owner (a postgres user) and the name
+    Creates a postgres database given its owner and the name
     of the database.
     """
     with settings(warn_only=True):
-        sudo('createdb -E UTF8 -T template0 -O %s %s' % (owner, dbname), user='postgres')
+        sudo('createdb -E UTF8 -T template0 -O %s %s' % (owner, dbname), user=conf.project_username)
 
 def drop_postgres_db(dbname):
     """
