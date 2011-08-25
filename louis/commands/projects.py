@@ -271,7 +271,9 @@ def update_project(project_name=project_name,
                 # FIXME It is kind hacky the creation of a temporary file
                 # here, but we need to make it consistent with LOGROTATE.
                 temp_dest = "/tmp/%s.crontab" % project_name
-                files.upload_template(conf.CRONTAB, temp_dest, context=template_context)
+                # Fabric tries to keep a backup of the same file sometimes
+                with settings(warn_only=True):
+                    files.upload_template(conf.CRONTAB, temp_dest, context=template_context, backup=False)
                 run("crontab %s && rm %s" % (temp_dest, temp_dest))
     if hasattr(conf, "LOGROTATE"):
         print "Setting up logrotate"
