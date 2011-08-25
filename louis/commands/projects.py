@@ -13,6 +13,7 @@ from louis.commands.users import add_ssh_keys
 branch = conf.GIT_BRANCH
 project_name = conf.PROJECT_NAME
 project_username = conf.PROJECT_USERNAME or ('%s-%s' % (project_name, branch))
+conf.PROJECT_USERNAME = project_username
 requirements_path = '/home/%s/%s/deploy/requirements.txt' % (project_username, project_name)
 # requirements_path = '%s/deploy/requirements.txt' % project_name
 extra_project_requirements = getattr(conf, "install_extra_project_requirements", None)
