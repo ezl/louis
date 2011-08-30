@@ -7,7 +7,8 @@ from louis import conf
 def _install_packages(*packages):
     packages = " ".join(packages)
     print(green('Installing %s' % packages))
-    sudo('apt-get -y -q=2 install %s >/dev/null' % packages, shell=False)
+    sudo('DEBIAN_FRONTEND=noninteractive apt-get -y -q=2 '
+         'install %s >/dev/null' % packages, shell=False)
 
 def update():
     """
