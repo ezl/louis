@@ -14,6 +14,8 @@ def giddyup():
         init_server()
     setup_project()
 
+deploy = giddyup
+
 def init_server(apache=True, postgres=True):
     """
     Runs basic configuration of a virgin server.
@@ -32,7 +34,6 @@ def init_server(apache=True, postgres=True):
     if postgres:
         install_postgres()
     config_sshd()
-
 
 def setup_hosts():
     """
