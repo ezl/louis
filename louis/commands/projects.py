@@ -203,6 +203,7 @@ def setup_project(project_name=project_name,
     Creates a user for the project, checks out the code and does basic apache config.
     """
     setup_project_user(project_username)
+    setup_postgres()
     print(green("Here is the project user's public key:"))
     run('cat /home/%s/.ssh/id_rsa.pub' % project_username)
     print(green("This script will attempt a `git clone` next."))
@@ -217,6 +218,7 @@ def setup_project(project_name=project_name,
             with settings(warn_only=True):
                 run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
     setup_project_apache(project_name, project_username, apache_server_name, apache_server_alias, django_settings, branch=branch)
+    update_project()
     print(green("""Project setup complete. You may need to patch the virtualenv
     to install things like mx. You may do so with the patch_virtualenv command."""))
 

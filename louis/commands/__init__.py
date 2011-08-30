@@ -10,9 +10,8 @@ def command(command="ls"):
 
 def giddyup():
     """All.  louisconf has to be properly set up."""
-    # with settings(user="root"):
-    #    init_server()
-    # This doesn't work, but how do i do this?
+    with settings(user=None):
+        init_server()
     setup_postgres()
     setup_project()
     update_project()
