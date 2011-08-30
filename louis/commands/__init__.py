@@ -12,9 +12,7 @@ def giddyup():
     """All.  louisconf has to be properly set up."""
     with settings(user="root"):
         init_server()
-    setup_postgres()
     setup_project()
-    update_project()
 
 def init_server(apache=True, postgres=True):
     """
