@@ -8,6 +8,7 @@ from fabric.colors import green, red
 from louis import conf
 import louis.commands
 from louis.commands.users import add_ssh_keys
+from louis.commands.databases import setup_postgres
 
 
 branch = conf.GIT_BRANCH
