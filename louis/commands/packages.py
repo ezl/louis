@@ -20,7 +20,8 @@ def update():
     print(green('Updating package repositories'))
     sudo('apt-get update -y -q=2')
     print(green('Upgrading installed packages'))
-    sudo('apt-get upgrade -y -q=2')
+    sudo('DEBIAN_FRONTEND=noninteractive apt-get upgrade '
+          '-y -q=2 > /dev/null')
 
 
 def install_debconf_seeds():
