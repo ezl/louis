@@ -74,8 +74,9 @@ def install_postgres():
     """
     Installs postgres and python mxdatetime.
     """
-    pkgs = ('postgresql', 'python-egenix-mxdatetime', 'psycopg2')
+    pkgs = ('postgresql', 'python-egenix-mxdatetime')
     _install_packages(*pkgs)
+    sudo('apt-get -y build-dep psycopg2')
 
 
 def patch_virtualenv(user, package_path, virtualenv_path='env'):
