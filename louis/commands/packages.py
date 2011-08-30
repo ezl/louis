@@ -4,6 +4,10 @@ from fabric.colors import green
 from fabric.contrib import files
 from louis import conf
 
+def _install_packages(*packages):
+    packages = " ".join(packages)
+    print(green('Installing %s' % packages))
+    sudo('apt-get -y -q=2 install ' + packages, shell=False)
 
 def update():
     """
@@ -12,13 +16,14 @@ def update():
     # Activate Ubuntu's "Universe" repositories.
     files.uncomment('/etc/apt/sources.list', regex=r'deb.*universe',
                     use_sudo=True)
-    sudo('apt-get update -y')
-    sudo('apt-get upgrade -y')
+    print(green('Updating package repositories'))
+    sudo('apt-get update -y -q=2')
+    print(green('Upgrading installed packages'))
+    sudo('apt-get upgrade -y -q=2')
 
 
 def install_debconf_seeds():
-    print(green('Installing debconf-utils'))
-    sudo('apt-get -y install debconf-utils')
+    _install_packages("debconf-utils")
     for seed_file in conf.DEBCONF_SEEDS:
         directory, sep, seed_filename = seed_file.rpartition('/')
         print(green('Installing seed: %s' % seed_filename))
@@ -30,9 +35,7 @@ def install_basic_packages():
     """
     Installs basic packages as specified in louisconf.BASIC_PACKAGES
     """
-    packages = " ".join(conf.BASIC_PACKAGES)
-    print(green('Installing %s' % packages))
-    sudo('apt-get -y install ' + packages, shell=False)
+    _install_packages(*conf.BASIC_PACKAGES)
 
 
 def config_apticron():
@@ -58,8 +61,7 @@ def install_apache():
     Installs apache2, mod-wsgi, and mod-ssl.
     """
     pkgs = ('apache2', 'apache2-utils', 'libapache2-mod-wsgi', )
-    for pkg in pkgs:
-        sudo('apt-get -y install %s' % pkg)
+    _install_packages(*pkgs)
     sudo('virtualenv --no-site-packages /var/www/virtualenv')
     sudo('echo "WSGIPythonHome /var/www/virtualenv" >> /etc/apache2/conf.d/wsgi-virtualenv')
     sudo('a2enmod ssl')
@@ -72,11 +74,8 @@ def install_postgres():
     """
     Installs postgres and python mxdatetime.
     """
-    pkgs = ('postgresql', 'python-egenix-mxdatetime')
-    for pkg in pkgs:
-        sudo('apt-get -y install %s' % pkg)
-    sudo('apt-get -y install postgresql')
-    sudo('apt-get -y build-dep psycopg2')
+    pkgs = ('postgresql', 'python-egenix-mxdatetime', 'psycopg2')
+    _install_packages(*pkgs)
 
 
 def patch_virtualenv(user, package_path, virtualenv_path='env'):
