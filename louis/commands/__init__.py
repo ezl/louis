@@ -12,6 +12,20 @@ from louis import conf
 #     Reference: http://docs.fabfile.org/en/0.9.1/faq.html
 env.shell = "/bin/bash -c"
 
+def install_ezl_dotfiles(user=None):
+    user = user or env.user
+    with settings(user=user):
+        with cd('/home/%s' % user):
+            if files.exists(".dotfiles"):
+                if confirm(red(".dotfiles already exists. Reclone?")):
+                    run("rm -rf .dotfiles")
+                else:
+                    return
+            run("git clone https://github.com/ezl/.dotfiles.git")
+            with cd('/home/%s/.dotfiles' % user):
+                run('source install.sh')
+
+
 def command(command="ls"):
     sudo("%s" % command)
 
