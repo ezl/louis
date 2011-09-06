@@ -54,6 +54,7 @@ def config_exim():
         files.sed('/etc/exim4/update-exim4.conf.conf', 'local',
               conf.EXIM_CONFIG_TYPE or "local", 
               limit="dc_eximconfig_configtype=", use_sudo=True)
+        sudo("/etc/init.d/exim4 restart")
 
 def config_sshd():
     """Disables password-based and root logins. Make sure that you have some
