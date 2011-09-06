@@ -34,6 +34,7 @@ def init_server(apache=True, postgres=True):
     install_debconf_seeds()
     install_basic_packages()
     config_apticron()
+    config_exim()
     create_sysadmins()
     config_sudo()
     if apache:
