@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import os
 
 from fabric.operations import prompt
 from fabric.contrib.console import confirm
@@ -229,6 +230,28 @@ def setup_project(project_name=project_name,
     to install things like mx. You may do so with the patch_virtualenv command."""))
 
 
+def setup_project_scripts(project_name=project_name,
+                          project_username=project_username,
+                          django_settings=None,
+                          server_admin=server_admin,
+                          env_path=env_path):
+    django_settings = django_settings or _get_django_settings()
+    context = {
+        'project_name': project_name,
+        'project_username': project_username,
+        'django_settings': django_settings,
+        'env_path': env_path,
+        'server_admin': server_admin,
+    }
+    project_path = '/home/%s/%s' % (project_username, project_name)
+    with settings(user=project_username, warn_only=True):
+        for path in local('find $PWD/scripts/ -name \*.sh').split('\n'):
+            filename = os.path.basename(path)
+            dest_path = project_path + '/scripts/' + filename
+            files.upload_template(path, dest_path, context=context)
+            run("chmod +x " + dest_path)
+
+
 def delete_project_code(project_name=project_name,
                         project_username=project_username):
     """
@@ -288,3 +311,4 @@ def update_project(project_name=project_name,
     if hasattr(conf, "LOGROTATE"):
         print "Setting up logrotate"
         files.upload_template(conf.LOGROTATE, "/etc/logrotate.d/%s" % project_name, context=template_context, use_sudo=True)
+    setup_project_scripts(project_name, project_username, django_settings, server_admin, env_path)
