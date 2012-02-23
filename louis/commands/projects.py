@@ -25,7 +25,7 @@ apache_server_name = conf.APACHE_SERVER_NAME
 apache_server_alias = conf.APACHE_SERVER_ALIAS
 server_admin = conf.APACHE_SERVER_ADMIN
 wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
-django_settings = conf.DJANGO_SETTINGS_MODULE # or 'production-settings'
+django_settings = env.host_config.get("django-settings", conf.DJANGO_SETTINGS_MODULE) # or production-settings
 env_path = '.virtualenvs/%s' % project_name
 
 
@@ -253,7 +253,7 @@ def update_project(project_name=project_name,
     The wsgi path is relative to the target directory and defaults to
     deploy/project_username.wsgi.
     """
-    print ("Using %s for django settings module.")
+    print ("Using %s for django settings module." % django_settings)
     template_context = {
         "env_path": env_path,
         "project_username": project_username,
