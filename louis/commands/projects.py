@@ -25,9 +25,12 @@ apache_server_name = conf.APACHE_SERVER_NAME
 apache_server_alias = conf.APACHE_SERVER_ALIAS
 server_admin = conf.APACHE_SERVER_ADMIN
 wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
-django_settings = env.host_config.get("django-settings", conf.DJANGO_SETTINGS_MODULE) # or production-settings
 env_path = '.virtualenvs/%s' % project_name
 
+def _get_django_settings():
+    return (env.host_config.get("django-settings", "")
+            or getattr(conf, "DJANGO_SETTINGS_MODULE",
+			           "production-settings"))
 
 def setup_project_user(project_username=project_username):
     """
@@ -126,7 +129,7 @@ def setup_project_apache(project_name=project_name,
                          project_username=project_username,
                          apache_server_name=apache_server_name,
                          apache_server_alias=apache_server_alias,
-                         django_settings=django_settings,
+                         django_settings=None,
                          server_admin=server_admin,
                          media_directory=media_directory,
                          env_path=env_path,
@@ -146,6 +149,7 @@ def setup_project_apache(project_name=project_name,
     defaults to project_username/media ie you'd end up with
     /home/project/project/media/
     """
+    django_settings = django_settings or _get_django_settings()
     with cd('/home/%s' % project_username):
         # permissions for media/
         sudo('chgrp www-data -R %s' % media_directory)
@@ -197,12 +201,13 @@ def setup_project(project_name=project_name,
                   git_url=git_url,
                   apache_server_name=apache_server_name,
                   apache_server_alias=apache_server_alias,
-                  django_settings=django_settings,
+                  django_settings=None,
                   branch=branch,
                   requirements_path=requirements_path):
     """
     Creates a user for the project, checks out the code and does basic apache config.
     """
+    django_settings = django_settings or _get_django_settings()
     setup_project_user(project_username)
     setup_postgres()
     print(green("Here is the project user's public key:"))
@@ -244,7 +249,7 @@ def update_project(project_name=project_name,
                    project_username=project_username,
                    branch=branch,
                    wsgi_file_path=wsgi_file_path,
-                   django_settings=django_settings,
+                   django_settings=None,
                    update_requirements=True):
     """
     Pull the latest source to a project deployed at target_directory. The
@@ -253,6 +258,7 @@ def update_project(project_name=project_name,
     The wsgi path is relative to the target directory and defaults to
     deploy/project_username.wsgi.
     """
+    django_settings = django_settings or _get_django_settings()
     print ("Using %s for django settings module." % django_settings)
     template_context = {
         "env_path": env_path,

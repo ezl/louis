@@ -1,9 +1,15 @@
+from fabric.api import env
+
 from louis.commands.packages import *
 from louis.commands.users import *
 from louis.commands.projects import *
 from louis.commands.projects import *
 from louis.commands.databases import *
 from louis import conf
+
+# This is a new config added by Louis. In order to avoid problems on
+# commands using it, let's initialize it here.
+env.host_config = {}
 
 # Do not execute shell in login mode, so we can avoid warnings about stdin
 # not being a tty. Currently, we don't depend on anything that requires a
