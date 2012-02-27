@@ -27,6 +27,7 @@ apache_server_alias = conf.APACHE_SERVER_ALIAS
 server_admin = conf.APACHE_SERVER_ADMIN
 wsgi_file_path = '/home/%s/%s.wsgi' % (project_username, project_username)
 env_path = '.virtualenvs/%s' % project_name
+virtualenv_use_site_packages = getattr(conf, "VIRTUALENV_USE_SITE_PACKAGES", False)
 
 def _get_django_settings():
     return (env.host_config.get("django-settings", "")
@@ -55,7 +56,7 @@ def setup_project_user(project_username=project_username):
 
 def setup_project_virtualenv(project_username=project_username,
                              env_path=env_path,
-                             site_packages=False):
+                             site_packages=virtualenv_use_site_packages):
     """
     Create a clean virtualenv for a project in the target directory. The target
     directory is relative to the project user's home dir and defaults to env ie
