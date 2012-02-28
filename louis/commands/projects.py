@@ -176,10 +176,6 @@ def setup_project_apache(project_name=project_name,
     # wsgi file
     for wsgi_path in local('find $PWD -name "*.wsgi"').split('\n'):
         d, sep, wsgi_filename = wsgi_path.rpartition('/')
-        wsgi_filename, dot, ext = wsgi_filename.rpartition('.')
-        # apache2 file has this filename set already.
-        # wsgi_filename = '%s-%s.%s' % (wsgi_filename, branch, ext)
-        wsgi_filename = '%s.%s' % (project_username, ext)
         dest_path = '/home/%s/%s' % (project_username, wsgi_filename)
 
         if not files.exists(dest_path, use_sudo=True):
