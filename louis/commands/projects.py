@@ -169,10 +169,6 @@ def setup_project_apache(project_name=project_name,
     # apache config
     for config_path in local('find $PWD -name "*.apache2"').split('\n'):
         d, sep, config_filename = config_path.rpartition('/')
-        config_filename, dot, ext = config_filename.rpartition('.')
-        config_filename = '%s-%s.%s' % (config_filename, branch, ext)
-        # screw it, use this username instead.  throw away the given name entirely.
-        config_filename = '%s.%s' % (project_username, ext)
         dest_path = '/etc/apache2/sites-available/%s' % config_filename
         if not files.exists(dest_path, use_sudo=True):
             files.upload_template(config_path, dest_path, context=context, use_sudo=True)
