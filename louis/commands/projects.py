@@ -230,6 +230,7 @@ def setup_project_scripts(project_name=project_name,
                           env_path=env_path):
     django_settings = django_settings or _get_django_settings()
     context = {
+        'hostname': env.hostname,
         'project_name': project_name,
         'project_username': project_username,
         'django_settings': django_settings,
