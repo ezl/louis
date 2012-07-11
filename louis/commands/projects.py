@@ -290,6 +290,7 @@ def update_project(project_name=project_name,
             run('git submodule update')
             # Don't make it an error if the project isn't using south
             with settings(warn_only=True):
+                run('/home/%s/%s/bin/python manage.py syncdb --settings=%s --noinput' % (project_username, env_path, django_settings))
                 run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
             if update_requirements is True:
                 install_project_requirements(project_username, requirements_path,  env_path)
