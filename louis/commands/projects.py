@@ -240,6 +240,8 @@ def setup_project_scripts(project_name=project_name,
     project_path = '/home/%s/%s' % (project_username, project_name)
     with settings(user=project_username, warn_only=True):
         for path in local('find $PWD/scripts/ -name \*.sh').split('\n'):
+            if not path:
+                continue
             filename = os.path.basename(path)
             dest_path = project_path + '/scripts/' + filename
             files.upload_template(path, dest_path, context=context)
