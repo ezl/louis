@@ -282,6 +282,7 @@ def update_project(project_name=project_name,
         "project_username": project_username,
         "project_name": project_name,
         "django_settings": django_settings,
+        "hostname": env.hostname,
     }
     with settings(user=project_username):
         with cd('/home/%s/%s' % (project_username, project_name)):
