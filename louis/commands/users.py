@@ -19,9 +19,7 @@ def add_ssh_keys(target_username, ssh_key_path):
 def create_group(groupname):
     """Creates group if it doesn't already exist."""
     with settings(warn_only=True):
-        check_group = sudo('grep -e "%s" /etc/group' % groupname)
-        if check_group.return_code > 0:
-            sudo('groupadd %s' % groupname)
+        sudo('groupadd %s' % groupname)
 
 
 def create_user(username, ssh_key_path, shell='bash', admin=False, password=None):
