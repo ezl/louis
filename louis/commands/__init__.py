@@ -49,6 +49,8 @@ def init_server(apache=True, postgres=True):
     """
     if hasattr(conf, "timezone"):
         set_timezone(conf.timezone)
+    sudo("dpkg-reconfigure locales")
+    sudo("update-locale LANG=en_US.UTF-8")
     setup_hosts()
     update()
     install_debconf_seeds()
