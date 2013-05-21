@@ -217,6 +217,8 @@ def setup_project(project_name=project_name,
             # Don't make it an error if the project isn't using south
             with settings(warn_only=True):
                 run('/home/%s/%s/bin/python manage.py migrate --settings=%s' % (project_username, env_path, django_settings))
+                run('/home/%s/%s/bin/python manage.py collectstatic --noinput --settings=%s' % (project_username, env_path, django_settings))
+
     setup_project_apache(project_name, project_username, apache_server_name, apache_server_alias, django_settings, branch=branch)
     update_project()
     print(green("""Project setup complete. You may need to patch the virtualenv
