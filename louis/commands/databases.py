@@ -26,7 +26,7 @@ def create_postgres_db(owner=conf.POSTGRES_USERNAME, dbname=conf.POSTGRES_DBNAME
     of the database.
     """
     with settings(warn_only=True):
-        sudo('createdb -E UTF8 -T template0 -O %s %s' % (owner, dbname), user=conf.PROJECT_USERNAME)
+        sudo('createdb --encoding UTF8 --lc-ctype en_US.UTF-8 --lc-collate en_US.UTF-8 -T template0 -O %s %s' % (owner, dbname), user=conf.PROJECT_USERNAME)
 
 def drop_postgres_db(dbname):
     """
