@@ -10,10 +10,11 @@ def add_ssh_keys(target_username, ssh_key_path):
     """
     with cd('/home/%s' % target_username):
         sudo('mkdir -p .ssh')
-        put(ssh_key_path, 'keys')
-        sudo('cat ~/keys >> .ssh/authorized_keys')
+        put(ssh_key_path, '/tmp/keys')
+        sudo("cp /tmp/keys .")
+        sudo('cat keys >> .ssh/authorized_keys')
         sudo('chown -R %s:%s .ssh/' % (target_username, target_username))
-        sudo('rm -f keys')
+        sudo('rm -f /tmp/keys')
 
 
 def create_group(groupname):
